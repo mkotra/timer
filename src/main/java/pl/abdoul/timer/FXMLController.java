@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.util.Timer;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import javafx.application.Platform;
@@ -14,46 +15,69 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
+import javafx.scene.input.MouseEvent;
 
 public class FXMLController {
 
+    private static final boolean IS_WINDOWS = System.getProperty("os.name")
+            .toLowerCase()
+            .startsWith("windows");
+
     @FXML
     private Button button;
-    
+
     @FXML
     private Label label;
 
     @FXML
+    private Slider slider;
+    
+    public void initialize() {
+        slider.valueProperty().addListener(e -> {
+              label.setText(formatValue() + "");
+        });
+    }
+    
+    @FXML
     private void handleButtonAction(ActionEvent event) throws InterruptedException, IOException {
         button.setDisable(true);
+        double target = slider.getValue() * 60;
         final AtomicInteger i = new AtomicInteger();
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-        executor.scheduleAtFixedRate(() -> {
-            var v = i.incrementAndGet();
-
-            Platform.runLater(
-                    () -> {
-                        label.setText(v + "");
-                    }
-            );
-
+        ScheduledFuture<?> scheduleAtFixedRate = executor.scheduleAtFixedRate(() -> {
+            var value = i.incrementAndGet();
+            Platform.runLater(() -> {
+                label.setText(value + " / " + formatValue());
+            });
+            if (value > target) {
+                shutdown();
+            }
         }, 0, 1, TimeUnit.SECONDS);
-
-        boolean isWindows = System.getProperty("os.name").toLowerCase().startsWith("windows");
-
-        ProcessBuilder builder = new ProcessBuilder();
-        if (isWindows) {
-            builder.command("cmd.exe", "/c", "dir");
-        } else {
-            builder.command("sh", "-c", "touch file");
-        }
-        builder.directory(new File(System.getProperty("user.home")));
-        //Process process = builder.start();
-        //int exitCode = process.waitFor();
 
     }
 
-    public void initialize() {
-        // TODO
+    public int formatValue() {
+        return (int) Math.round(slider.getValue());
+    }
+
+    public void shutdown() {
+        ProcessBuilder builder = new ProcessBuilder();
+        if (IS_WINDOWS) {
+            builder.command("cmd.exe", "/c", "shutdown");
+        } else {
+            builder.command("sh", "-c", "poweroff");
+        }
+        builder.directory(new File(System.getProperty("user.home")));
+        Process process;
+        try {
+            process = builder.start();
+            int exitCode = process.waitFor();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
+        }
+
     }
 }

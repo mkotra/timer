@@ -9,6 +9,6 @@
     <children>
         <Button fx:id="button" layoutX="117.0" layoutY="123.0" onAction="#handleButtonAction" text="Click Me!" />
         <Label fx:id="label" layoutX="122.0" layoutY="84.0" minHeight="16" minWidth="69" />
-      <Slider layoutX="40.0" layoutY="39.0" prefHeight="16.0" prefWidth="262.0" />
+        <Slider fx:id="slider"  layoutY="39.0" prefHeight="38.0" prefWidth="320.0" showTickLabels="true" showTickMarks="true" />
     </children>
 </AnchorPane>

@@ -12,6 +12,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <mainClass>pl.abdoul.timer.MainApp</mainClass>
+        <javafx.version>11</javafx.version>
     </properties>
 
     <organization>
@@ -23,12 +24,12 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <version>11</version>
+            <version>${javafx.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
-            <version>11</version>
+            <version>${javafx.version}</version>
         </dependency>
     </dependencies>
     <build>
