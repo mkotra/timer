@@ -50,10 +50,11 @@ public class FXMLController {
     private Button cancelButton;
 
     public void initialize() {
-        setMode(false);
+        slider.setValue(30);
         slider.valueProperty().addListener(e -> {
             labelTarget.setText("Target: " +  formatValue() + " min");
         });
+        setMode(false);
     }
 
     @FXML
@@ -107,9 +108,7 @@ public class FXMLController {
     }
 
     private void setMode(boolean running) {
-        if (!running) {
-            labelTarget.setText("");
-        }
+        labelTarget.setText("Target: " +  formatValue() + " min");
         labelRemaining.setText("");
         runButton.setDisable(running);
         cancelButton.setDisable(!running);
