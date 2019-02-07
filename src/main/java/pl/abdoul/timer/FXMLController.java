@@ -16,6 +16,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Slider;
 import static pl.abdoul.timer.Constants.*;
 
@@ -33,16 +34,22 @@ public class FXMLController {
 
     private ScheduledFuture<?> task;
 
+    private double target;
+    
+    private double value;
+    
     @FXML
     private Slider slider;
 
     @FXML
-    private Label labelTarget;
-   
+    ProgressBar progressBar;
     
     @FXML
+    private Label labelTarget;
+   
+    @FXML
     private Label labelRemaining;
-
+    
     @FXML
     private Button runButton;
 
@@ -59,7 +66,7 @@ public class FXMLController {
 
     @FXML
     private void run(ActionEvent event) throws InterruptedException, IOException {
-        double target = slider.getValue() * 60;
+        target = slider.getValue() * 60;
         Alert alert = new Alert(AlertType.CONFIRMATION);
         alert.setTitle("Confirmation");
         alert.setHeaderText("Poweroff in " + formatValue() + " minutes");
@@ -69,10 +76,12 @@ public class FXMLController {
             setMode(true);
             final AtomicInteger i = new AtomicInteger();
             task = EXECUTOR.scheduleAtFixedRate(() -> {
-                var value = i.incrementAndGet();
+                value = i.incrementAndGet();
                 Platform.runLater(() -> {
-                    double remaining = (target - value) / 60;
+                    double remaining = calculateRemaining();
+                    double progress = value / target;
                     this.labelRemaining.setText(String.format("Remaining: %.2f min", remaining));
+                    this.progressBar.setProgress(progress);
                 });
                 if (value > target) {
                     shutdown();
@@ -108,14 +117,22 @@ public class FXMLController {
     }
 
     private void setMode(boolean running) {
+        if(!running) {
+            progressBar.setProgress(0);
+        }
         labelTarget.setText("Target: " +  formatValue() + " min");
         labelRemaining.setText("");
+        slider.setDisable(running);
         runButton.setDisable(running);
         cancelButton.setDisable(!running);
     }
 
     private int formatValue() {
         return (int) Math.round(slider.getValue());
+    }
+    
+    private double calculateRemaining() {
+        return (target - value) / 60;
     }
     
     private void handleException(Exception ex) {
