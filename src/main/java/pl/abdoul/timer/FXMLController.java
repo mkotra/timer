@@ -23,7 +23,11 @@ public class FXMLController {
 
     private static final boolean IS_WINDOWS = System.getProperty("os.name")
             .toLowerCase()
-            .startsWith("windows");
+            .contains("win");
+    
+    private static final boolean IS_MAC = System.getProperty("os.name")
+            .toLowerCase()
+            .contains("mac");
 
     private static final ScheduledExecutorService EXECUTOR = Executors.newScheduledThreadPool(1);
 
@@ -33,7 +37,11 @@ public class FXMLController {
     private Slider slider;
 
     @FXML
-    private Label label;
+    private Label labelTarget;
+   
+    
+    @FXML
+    private Label labelRemaining;
 
     @FXML
     private Button runButton;
@@ -44,7 +52,7 @@ public class FXMLController {
     public void initialize() {
         setMode(false);
         slider.valueProperty().addListener(e -> {
-            label.setText(formatValue() + "");
+            labelTarget.setText("Target: " +  formatValue() + " min");
         });
     }
 
@@ -53,7 +61,7 @@ public class FXMLController {
         double target = slider.getValue() * 60;
         Alert alert = new Alert(AlertType.CONFIRMATION);
         alert.setTitle("Confirmation");
-        alert.setHeaderText("Poweroff in " + formatValue() + " minutes.");
+        alert.setHeaderText("Poweroff in " + formatValue() + " minutes");
         alert.setContentText("Are you ok with this?");
         Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == ButtonType.OK) {
@@ -62,7 +70,8 @@ public class FXMLController {
             task = EXECUTOR.scheduleAtFixedRate(() -> {
                 var value = i.incrementAndGet();
                 Platform.runLater(() -> {
-                    label.setText(value/60 + " / " + formatValue());
+                    double remaining = (target - value) / 60;
+                    this.labelRemaining.setText(String.format("Remaining: %.2f min", remaining));
                 });
                 if (value > target) {
                     shutdown();
@@ -80,7 +89,9 @@ public class FXMLController {
     private void shutdown() {
         ProcessBuilder builder = new ProcessBuilder();
         if (IS_WINDOWS) {
-            builder.command(SHUTDOWN_WINDOWS);
+            builder.command(SHUTDOWN_WINDOWS);    
+        } else if (IS_MAC) {
+            builder.command(SHUTDOWN_MAC);
         } else {
             builder.command(SHUTDOWN_LINUX);
         }
@@ -88,20 +99,31 @@ public class FXMLController {
         Process process;
         try {
             process = builder.start();
-            int exitCode = process.waitFor();
+            process.waitFor();
         } catch (IOException | InterruptedException ex) {
             setMode(false);
-            ex.printStackTrace();
+            handleException(ex);
         }
     }
 
     private void setMode(boolean running) {
-        label.setText("");
+        if (!running) {
+            labelTarget.setText("");
+        }
+        labelRemaining.setText("");
         runButton.setDisable(running);
         cancelButton.setDisable(!running);
     }
 
     private int formatValue() {
         return (int) Math.round(slider.getValue());
+    }
+    
+    private void handleException(Exception ex) {
+        Alert alert = new Alert(AlertType.INFORMATION);
+        alert.setTitle("Error");
+        alert.setHeaderText("Something went wrong:");
+        alert.setContentText(ex.getMessage());
+        alert.showAndWait();
     }
 }

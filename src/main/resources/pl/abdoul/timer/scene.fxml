@@ -8,11 +8,9 @@
 <AnchorPane id="AnchorPane" prefHeight="200" prefWidth="320" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.abdoul.timer.FXMLController">
     <children>
         <Slider fx:id="slider" layoutY="14.0" prefHeight="38.0" prefWidth="320.0" showTickLabels="true" showTickMarks="true" />
-        <Label fx:id="label" layoutX="21.0" layoutY="109.0" minHeight="16" minWidth="69" />
-        <Label fx:id="label1" layoutX="126.0" layoutY="109.0" minHeight="16" minWidth="69" />
-        <Label fx:id="label2" layoutX="222.0" layoutY="109.0" minHeight="16" minWidth="69" />
+        <Label fx:id="labelTarget" layoutX="21.0" layoutY="109.0" minHeight="16" minWidth="69" />
+        <Label fx:id="labelRemaining" layoutX="126.0" layoutY="109.0" minHeight="16" minWidth="69" />
         <Button fx:id="runButton" layoutX="56.0" layoutY="149.0" onAction="#run" text="Run" />
         <Button fx:id="cancelButton" layoutX="180.0" layoutY="149.0" mnemonicParsing="false" onAction="#cancel" text="Cancel" />
-   
     </children>
 </AnchorPane>
