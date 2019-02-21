@@ -67,12 +67,7 @@ public class FXMLController {
     @FXML
     private void run(ActionEvent event) throws InterruptedException, IOException {
         target = slider.getValue() * 60;
-        Alert alert = new Alert(AlertType.CONFIRMATION);
-        alert.setTitle("Confirmation");
-        alert.setHeaderText("Poweroff in " + formatValue() + " minutes");
-        alert.setContentText("Are you ok with this?");
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.get() == ButtonType.OK) {
+        if (confirm()) {
             setMode(true);
             final AtomicInteger i = new AtomicInteger();
             task = EXECUTOR.scheduleAtFixedRate(() -> {
@@ -96,6 +91,19 @@ public class FXMLController {
         setMode(false);
     }
 
+    private boolean confirm() {
+        if (target < 1) {
+            Alert alert = new Alert(AlertType.CONFIRMATION);
+            alert.setTitle("Confirmation");
+            alert.setHeaderText("Poweroff in " + formatValue() + " minutes");
+            alert.setContentText("Are you ok with this?");
+            Optional<ButtonType> result = alert.showAndWait();
+            return result.get() == ButtonType.OK;
+        } else {
+            return true;
+        }
+    }
+    
     private void shutdown() {
         ProcessBuilder builder = new ProcessBuilder();
         if (IS_WINDOWS) {

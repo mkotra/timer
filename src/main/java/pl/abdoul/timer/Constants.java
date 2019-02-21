@@ -9,7 +9,7 @@ public class Constants {
 
     
     public static final String[] SHUTDOWN_WINDOWS = new String[]{
-        "cmd.exe", "/c", "shutdown"
+        "shutdown", "/p"
     };
     
     public static final String[] SHUTDOWN_MAC = new String[]{
