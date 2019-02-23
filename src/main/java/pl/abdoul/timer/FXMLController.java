@@ -1,5 +1,12 @@
 package pl.abdoul.timer;
 
+import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.scene.control.*;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.layout.AnchorPane;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
@@ -8,16 +15,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import javafx.application.Platform;
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.Slider;
+
 import static pl.abdoul.timer.Constants.*;
 
 public class FXMLController {
@@ -25,7 +23,7 @@ public class FXMLController {
     private static final boolean IS_WINDOWS = System.getProperty("os.name")
             .toLowerCase()
             .contains("win");
-    
+
     private static final boolean IS_MAC = System.getProperty("os.name")
             .toLowerCase()
             .contains("mac");
@@ -35,21 +33,24 @@ public class FXMLController {
     private ScheduledFuture<?> task;
 
     private double target;
-    
+
     private double value;
-    
+
+    @FXML
+    private AnchorPane anchorPane;
+
     @FXML
     private Slider slider;
 
     @FXML
     ProgressBar progressBar;
-    
+
     @FXML
     private Label labelTarget;
-   
+
     @FXML
     private Label labelRemaining;
-    
+
     @FXML
     private Button runButton;
 
@@ -58,14 +59,12 @@ public class FXMLController {
 
     public void initialize() {
         slider.setValue(30);
-        slider.valueProperty().addListener(e -> {
-            labelTarget.setText("Target: " +  formatValue() + " min");
-        });
+        slider.valueProperty().addListener(e -> labelTarget.setText("Target: " + formatValue() + " min"));
         setMode(false);
     }
 
     @FXML
-    private void run(ActionEvent event) throws InterruptedException, IOException {
+    private void run() {
         target = slider.getValue() * 60;
         if (confirm()) {
             setMode(true);
@@ -86,7 +85,7 @@ public class FXMLController {
     }
 
     @FXML
-    private void cancel(ActionEvent event) throws InterruptedException, IOException {
+    private void cancel(ActionEvent event) {
         task.cancel(true);
         setMode(false);
     }
@@ -103,11 +102,11 @@ public class FXMLController {
             return true;
         }
     }
-    
+
     private void shutdown() {
         ProcessBuilder builder = new ProcessBuilder();
         if (IS_WINDOWS) {
-            builder.command(SHUTDOWN_WINDOWS);    
+            builder.command(SHUTDOWN_WINDOWS);
         } else if (IS_MAC) {
             builder.command(SHUTDOWN_MAC);
         } else {
@@ -125,10 +124,10 @@ public class FXMLController {
     }
 
     private void setMode(boolean running) {
-        if(!running) {
+        if (!running) {
             progressBar.setProgress(0);
         }
-        labelTarget.setText("Target: " +  formatValue() + " min");
+        labelTarget.setText("Target: " + formatValue() + " min");
         labelRemaining.setText("");
         slider.setDisable(running);
         runButton.setDisable(running);
@@ -138,11 +137,11 @@ public class FXMLController {
     private int formatValue() {
         return (int) Math.round(slider.getValue());
     }
-    
+
     private double calculateRemaining() {
         return (target - value) / 60;
     }
-    
+
     private void handleException(Exception ex) {
         Alert alert = new Alert(AlertType.INFORMATION);
         alert.setTitle("Error");
