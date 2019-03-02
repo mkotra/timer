@@ -6,7 +6,6 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-
 public class MainApp extends Application {
 
     @Override
@@ -17,6 +16,7 @@ public class MainApp extends Application {
         scene.getStylesheets().add(getClass().getResource("styles.css").toExternalForm());
 
         stage.setTitle("Timer");
+        stage.setResizable(false);
         stage.setScene(scene);
         stage.show();
     }

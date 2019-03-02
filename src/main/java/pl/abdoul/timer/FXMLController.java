@@ -37,9 +37,6 @@ public class FXMLController {
     private double value;
 
     @FXML
-    private AnchorPane anchorPane;
-
-    @FXML
     private Slider slider;
 
     @FXML
